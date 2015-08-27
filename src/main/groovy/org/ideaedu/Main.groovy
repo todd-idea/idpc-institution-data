@@ -29,7 +29,7 @@ public class Main {
     private static final def DEFAULT_PROTOCOL = "https"
 
     /** The maximum number of surveys to get before quitting. */
-    private static final def MAX_SURVEYS = 50000
+    private static final def MAX_SURVEYS = 51000
 
     /** The number of surveys to get per page */
     private static final def PAGE_SIZE = 100
@@ -43,6 +43,17 @@ public class Main {
     private static def verboseOutput = false
 
     private static RESTClient restClient
+
+    private static def INSTRUMENTS = [
+        6: [name: "Admin", version: "2.1"],
+        7: [name: "Chair", verison: "2.1"],
+        8: [name: "", version: ""],
+        9: [name: "Diagnostic", version: "2.1"],
+        10: [name: "Learning", version: "2.1"],
+        14: [name: "Chair", version: "2.6"],
+        18: [name: "Admin", version: "3.0"],
+        20: [name: "Teaching", version: "2014"]
+    ]
 
     public static void main(String[] args) {
 
@@ -103,7 +114,7 @@ public class Main {
             println"ID,Name,FICE,Chair,Admin,Teaching,Learning,Diagnostic"
             institutionMap.each { institutionID, instrumentCounts ->
                 def institution = getInstitution(institutionID)
-                print "${institution.id},${institution.name},${institution.fice},"
+                print "${institution.id},${institution.name},\"${institution.fice}\","
                 print "${instrumentCounts[14]}," // Chair (14)
                 print "${instrumentCounts[18]}," // Admin (18)
                 print "${instrumentCounts[20]}," // Teaching (20)
@@ -120,16 +131,11 @@ public class Main {
      * Create an initial map of instrument type counts. Each response form ID is a key with an initial value of 0.
      */
     static def createInitialMap() {
-        def map = [
-            6: 0, // Admin 2.1 response form
-            7: 0, // Chair 2.1 response form
-            8: 0, // Dean 2.1 response form
-            9: 0, // Diagnostic 2.1 response form
-            10: 0, // Short/Learning Outcomes 2.1 response form
-            14: 0, // Chair 2.6 response form
-            18: 0, // Admin 3.0 response form
-            20: 0 // Teaching Essentials 2014 response form
-        ]
+        def map = [:]
+
+        INSTRUMENTS.each { id, details ->
+            map[id] = 0
+        }
 
         return map
     }
